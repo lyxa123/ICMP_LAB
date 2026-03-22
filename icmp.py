@@ -111,7 +111,7 @@ def ping(host, timeout=1):
     dest = gethostbyname(host)
     print("Pinging " + dest + " using Python:")
 
-    while 1:
+    for i in range(4): # replaced the while 1 infinite loop
         delay = doOnePing(dest, timeout)
         print(delay)
         time.sleep(1)
@@ -119,3 +119,6 @@ def ping(host, timeout=1):
 
 
 ping("google.com")
+ping("127.0.0.1")
+ping("theguardian.com") # europe
+ping("abc.net.au") # australia
