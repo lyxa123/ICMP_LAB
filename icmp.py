@@ -45,9 +45,23 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
         timeReceived = time.time()
         recPacket, addr = mySocket.recvfrom(1024)
 
-        # Fill in start
+        ipHeader = recPacket[:20]
+        iph = struct.unpack("!BBHHHBBH4s4s", ipHeader)
+        ttl = iph[5]
 
-        # Fill in end
+        icmpHeader = recPacket[20:28]
+        icmpType, code, checksum, packetID, sequence = struct.unpack("bbHHh", icmpHeader)
+
+        if packetID == ID:
+            bytesInDouble = struct.calcsize("d")
+            timeSent = struct.unpack("d", recPacket[28:28 + bytesInDouble])[0]
+            rtt = (timeReceived - timeSent) * 1000
+            return "Reply from %s: bytes=%d time=%.2fms TTL=%d" % (
+                addr[0],
+                len(recPacket),
+                rtt,
+                ttl
+            )
 
         timeLeft = timeLeft - howLongInSelect
         if timeLeft <= 0:
@@ -101,7 +115,7 @@ def ping(host, timeout=1):
         delay = doOnePing(dest, timeout)
         print(delay)
         time.sleep(1)
-        return delay
+        #return delay
 
 
 ping("google.com")
